@@ -10,7 +10,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="bg-primary text-primary-foreground py-12 lg:py-20 relative overflow-hidden">
+    <section id="hero" className="bg-primary text-primary-foreground py-8 lg:py-12 relative overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/90"></div>
       
@@ -44,28 +44,6 @@ const HeroSection = () => {
           >
             Learn More
           </Button>
-
-          {/* Subtle icons representing categories */}
-          <div className="mt-16 flex justify-center space-x-8 lg:space-x-12 opacity-60">
-            <div className="text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-turquoise/20 rounded-full flex items-center justify-center mb-2">
-                🐾
-              </div>
-              <span className="text-sm">Pet Food</span>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-turquoise/20 rounded-full flex items-center justify-center mb-2">
-                ✨
-              </div>
-              <span className="text-sm">Beauty</span>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-turquoise/20 rounded-full flex items-center justify-center mb-2">
-                🏠
-              </div>
-              <span className="text-sm">Lifestyle</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
