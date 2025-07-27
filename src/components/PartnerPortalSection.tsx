@@ -105,7 +105,7 @@ const PartnerPortalSection = () => {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-turquoise mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
             Partner Order Portal
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

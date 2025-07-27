@@ -26,7 +26,7 @@ const HeroSection = () => {
           </div>
 
           {/* Company Name */}
-          <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-turquoise">
             Gusto Brands
           </h1>
 
