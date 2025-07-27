@@ -10,7 +10,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="bg-primary text-primary-foreground py-20 lg:py-32 relative overflow-hidden">
+    <section id="hero" className="bg-primary text-primary-foreground py-12 lg:py-20 relative overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/90"></div>
       
