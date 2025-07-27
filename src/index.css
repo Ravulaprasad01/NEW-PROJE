@@ -17,24 +17,28 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Gusto Brands Blue Palette */
+    --primary: 200 90% 25%; /* Dark blue for elegance */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --turquoise: 180 100% 50%; /* Turquoise blue from logo */
+    --turquoise-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary: 200 40% 90%; /* Light blue */
+    --secondary-foreground: 200 90% 25%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --muted: 200 20% 95%;
+    --muted-foreground: 200 20% 40%;
+
+    --accent: 180 100% 50%; /* Turquoise for accents */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 200 30% 85%;
+    --input: 200 30% 90%;
+    --ring: 180 100% 50%;
 
     --radius: 0.5rem;
 
@@ -100,6 +104,6 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-montserrat;
   }
 }
