@@ -101,14 +101,14 @@ const PartnerPortalSection = () => {
   };
 
   return (
-    <section id="portal" className="py-16 lg:py-24 bg-background">
+    <section id="portal" className="py-16 lg:py-24 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-turquoise mb-4">
             Partner Order Portal
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-primary-foreground/90 max-w-2xl mx-auto">
             Secure portal for our trusted partners to place orders and manage their account.
           </p>
         </div>
@@ -116,7 +116,7 @@ const PartnerPortalSection = () => {
         <div className="max-w-4xl mx-auto">
           {!isLoggedIn ? (
             /* Login Form */
-            <Card className="border-turquoise/20">
+            <Card className="border-turquoise/20 bg-primary-foreground/10">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-turquoise/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Lock className="w-8 h-8 text-turquoise" />
@@ -174,12 +174,8 @@ const PartnerPortalSection = () => {
                     <Button type="submit" variant="turquoise" className="w-full">
                       Log In
                     </Button>
-                    <div className="text-center space-y-2">
-                      <Button variant="link" className="text-turquoise">
-                        Create Account
-                      </Button>
-                      <br />
-                      <Button variant="link" className="text-sm text-muted-foreground">
+                    <div className="text-center">
+                      <Button variant="link" className="text-sm text-primary-foreground/60">
                         Forgot Password?
                       </Button>
                     </div>
