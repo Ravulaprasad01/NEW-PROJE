@@ -7,7 +7,6 @@ const MarketsSection = () => {
     { name: "Philippines", flag: "🇵🇭", description: "Tailoring premium products to meet the unique needs of Philippines' consumers." },
     { name: "Malaysia", flag: "🇲🇾", description: "Tailoring premium products to meet the unique needs of Malaysia's consumers." },
     { name: "Thailand", flag: "🇹🇭", description: "Tailoring premium products to meet the unique needs of Thailand's consumers." },
-    { name: "Indonesia", flag: "🇮🇩", description: "Tailoring premium products to meet the unique needs of Indonesia's consumers." },
   ];
 
   return (

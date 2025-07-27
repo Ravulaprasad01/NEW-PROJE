@@ -20,10 +20,10 @@ const AboutSection = () => {
           {/* Asian Market Focus */}
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-turquoise/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-8 h-8 text-turquoise" />
               </div>
-              <CardTitle className="text-turquoise">Asian Market Focus</CardTitle>
+              <CardTitle className="text-primary">Asian Market Focus</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-center">
@@ -35,10 +35,10 @@ const AboutSection = () => {
           {/* Trusted Partnerships */}
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-turquoise/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Handshake className="w-8 h-8 text-turquoise" />
               </div>
-              <CardTitle className="text-turquoise">Trusted Partnerships</CardTitle>
+              <CardTitle className="text-primary">Trusted Partnerships</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-center">
@@ -50,10 +50,10 @@ const AboutSection = () => {
           {/* Delivering Value */}
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-turquoise/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <ShoppingCart className="w-8 h-8 text-turquoise" />
               </div>
-              <CardTitle className="text-turquoise">Delivering Value</CardTitle>
+              <CardTitle className="text-primary">Delivering Value</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-center">
