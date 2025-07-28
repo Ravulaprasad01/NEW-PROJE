@@ -1,0 +1,456 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Header */
+.header {
+    position: sticky;
+    top: 0;
+    background: #0f172a;
+    color: white;
+    z-index: 50;
+    padding: 1rem 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-img {
+    height: 2.5rem;
+    width: 2.5rem;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #06b6d4;
+}
+
+.nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #06b6d4;
+}
+
+/* Hero Section */
+.hero {
+    background: #1e40af;
+    color: white;
+    padding: 2rem 0 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1e40af 0%, rgba(30, 64, 175, 0.95) 50%, rgba(30, 64, 175, 0.9) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+.hero-logo {
+    margin-bottom: 2rem;
+}
+
+.hero-logo-img {
+    height: 6rem;
+    width: 6rem;
+    margin: 0 auto 1.5rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #06b6d4;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.75;
+}
+
+.hero-button {
+    background: #06b6d4;
+    color: #0f172a;
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hero-button:hover {
+    background: #0891b2;
+    transform: translateY(-2px);
+}
+
+/* About Section */
+.about {
+    padding: 5rem 0;
+    background: white;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 48rem;
+    margin: 0 auto 4rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #1e40af;
+}
+
+.section-title-white {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.section-description {
+    font-size: 1.125rem;
+    color: #64748b;
+    line-height: 1.75;
+}
+
+.section-description-white {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.75;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px -10px rgba(30, 64, 175, 0.3);
+}
+
+.card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1e40af;
+}
+
+.card-description {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Markets Section */
+.markets {
+    padding: 5rem 0;
+    background: #1e40af;
+    position: relative;
+    overflow: hidden;
+}
+
+.markets-background {
+    position: absolute;
+    inset: 0;
+    background-image: url('src/assets/asia-map.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+}
+
+.markets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.market-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.market-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.market-flag {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.market-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.market-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+}
+
+/* Partner Portal Section */
+.partner-portal {
+    padding: 5rem 0;
+    background: #1e3a8a;
+}
+
+.portal-content {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    color: white;
+    font-weight: 500;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.login-button {
+    background: #06b6d4;
+    color: #0f172a;
+    padding: 0.75rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.login-button:hover {
+    background: #0891b2;
+}
+
+.login-note {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Contact Section */
+.contact {
+    padding: 5rem 0;
+    background: #f8fafc;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.contact-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px -10px rgba(30, 64, 175, 0.3);
+}
+
+.contact-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.contact-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1e40af;
+}
+
+.contact-info {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Footer */
+.footer {
+    background: #0f172a;
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.footer-logo {
+    height: 3rem;
+    width: 3rem;
+}
+
+.footer-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #06b6d4;
+}
+
+.footer-copyright {
+    color: #64748b;
+}
+
+.footer-tagline {
+    color: #64748b;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-logo-img {
+        height: 4rem;
+        width: 4rem;
+    }
+
+    .section-title,
+    .section-title-white {
+        font-size: 2rem;
+    }
+
+    .cards-grid,
+    .markets-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 0 0.75rem;
+    }
+}
