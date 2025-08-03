@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import gustoLogo from "@/assets/gusto-logo.png";
 
 const HeroSection = () => {
@@ -35,7 +36,8 @@ const HeroSection = () => {
             Trusted partner for premium brands across pet food, beauty, and lifestyle categories throughout Asia
           </p>
 
-          {/* CTA Button */}
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             variant="turquoise" 
             size="lg"
@@ -44,6 +46,16 @@ const HeroSection = () => {
           >
             Learn More
           </Button>
+            <Link to="/inventory-request">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="text-lg px-8 py-3 border-turquoise text-turquoise hover:bg-turquoise hover:text-primary"
+              >
+                Request Inventory
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

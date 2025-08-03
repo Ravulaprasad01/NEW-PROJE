@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import gustoLogo from "@/assets/gusto-logo.png";
 
 const Header = () => {
@@ -54,6 +55,12 @@ const Header = () => {
             >
               Partner Order Portal
             </button>
+            <Link 
+              to="/inventory-request"
+              className="hover:text-turquoise transition-colors"
+            >
+              Inventory Request
+            </Link>
             <button 
               onClick={() => scrollToSection('contact')}
               className="hover:text-turquoise transition-colors"
@@ -101,6 +108,13 @@ const Header = () => {
               >
                 Partner Order Portal
               </button>
+              <Link 
+                to="/inventory-request"
+                className="text-left hover:text-turquoise transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Inventory Request
+              </Link>
               <button 
                 onClick={() => scrollToSection('contact')}
                 className="text-left hover:text-turquoise transition-colors"
