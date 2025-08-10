@@ -69,8 +69,8 @@ serve(async (req) => {
         
         <div class="invoice-details">
           <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-          <p><strong>Customer:</strong> ${invoiceData.user_name}</p>
-          <p><strong>Email:</strong> ${invoiceData.user_email}</p>
+          <p><strong>Greetings:</strong> Greetings from Gusto Brands! Please find attached your invoice.</p>
+
         </div>
         
         <table>
