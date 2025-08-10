@@ -28,6 +28,7 @@ import { emailService } from "@/lib/email-service";
 import PDFDownloadButton from "./PDFDownloadButton";
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { PDFInvoiceGenerator } from '@/lib/pdf-generator';
 
 const invoiceSchema = z.object({
   invoice_number: z.string().min(1, "Invoice number is required"),
@@ -181,6 +182,24 @@ const AdminDashboard = () => {
             : req
         )
       );
+
+      // Generate and upload PDF after DB update
+      const pdfBlob = await PDFInvoiceGenerator.generatePDF({
+        user_name: selectedRequest.user_name,
+        user_email: selectedRequest.user_email,
+        items: selectedRequest.items,
+        total_amount: selectedRequest.total_amount,
+        invoice_number: data.invoice_number,
+        admin_notes: data.admin_notes,
+        due_date: data.due_date,
+      });
+      const fileName = `invoice-${data.invoice_number}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from('invoices')
+        .upload(fileName, pdfBlob, { upsert: true, contentType: 'application/pdf' });
+      if (uploadError) {
+        throw uploadError;
+      }
 
       // Send invoice to user
       const emailSuccess = await emailService.sendInvoice({

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { PDFDocument, rgb, StandardFonts } from "https://cdn.skypack.dev/pdf-lib@^1.17.1"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +29,19 @@ serve(async (req) => {
 
   try {
     const { invoiceData } = await req.json()
+
+    // Fetch PDF from Supabase Storage
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+    const fileName = `invoice-${invoiceData.invoice_number}.pdf`
+    const { data: pdfData, error: pdfError } = await supabase.storage.from('invoices').download(fileName)
+    if (pdfError || !pdfData) {
+      return new Response(JSON.stringify({ success: false, error: 'PDF not found in storage.' }), { headers: corsHeaders, status: 404 })
+    }
+    // Convert PDF to base64
+    const pdfArrayBuffer = await pdfData.arrayBuffer()
+    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfArrayBuffer)))
 
     // Create invoice HTML
     const invoiceHtml = `
@@ -98,10 +112,6 @@ serve(async (req) => {
       </body>
       </html>
     `
-
-    // Generate PDF attachment
-    const pdfBytes = await createPDFAttachment(invoiceData)
-    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBytes)))
 
     // Check if Resend API key is configured
     const resendApiKey = Deno.env.get("RESEND_API_KEY")
@@ -211,242 +221,3 @@ serve(async (req) => {
     )
   }
 })
-
-// Helper function to create PDF attachment using pdf-lib
-async function createPDFAttachment(invoiceData: InvoiceData): Promise<Uint8Array> {
-  // Create a new PDF document
-  const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([595.28, 841.89]) // A4 size
-  const { width, height } = page.getSize()
-  
-  // Embed the standard font
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-  
-  // Set up colors to match the Excel format
-  const darkBlue = rgb(0.12, 0.25, 0.69) // #1e40af
-  const gray = rgb(0.39, 0.45, 0.55) // #64748b
-  const darkGray = rgb(0.12, 0.16, 0.23) // #1e293b
-  const lightBlue = rgb(0.94, 0.97, 1.0) // #f0f8ff
-  const lightGray = rgb(0.97, 0.98, 0.99) // #f8fafc
-  const white = rgb(1, 1, 1)
-  
-  const margin = 20
-  let yPosition = height - margin
-  
-  // Header - Company name (left)
-  page.drawText('Gusto Brands Limited', {
-    x: margin,
-    y: yPosition,
-    size: 18,
-    font: boldFont,
-    color: darkBlue,
-  })
-  
-  // INVOICE text (right)
-  page.drawText('INVOICE', {
-    x: width - margin - 50,
-    y: yPosition,
-    size: 18,
-    font: boldFont,
-    color: darkBlue,
-  })
-  
-  yPosition -= 8
-  
-  // Invoice number (right)
-  page.drawText(`SI-${invoiceData.invoice_number}`, {
-    x: width - margin - 60,
-    y: yPosition,
-    size: 14,
-    font: boldFont,
-    color: darkBlue,
-  })
-  
-  yPosition -= 8
-  
-  // Blue bar under header
-  page.drawRectangle({
-    x: margin,
-    y: yPosition,
-    width: width - (2 * margin),
-    height: 3,
-    color: darkBlue,
-  })
-  
-  yPosition -= 8
-  
-  // Company address (left)
-  page.drawText('Room B, LG2/F Kai Wong Commercial Building', {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText('222 Queen\'s Road Central', {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText('Hong Kong', {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 10
-  
-  // --- Remove Sales Order section entirely ---
-  // Invoice Date (left)
-  page.drawText('INVOICE DATE', {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: gray,
-  })
-  page.drawText(new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }), {
-    x: margin,
-    y: yPosition - 12,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  // Invoice Number (right, bold, blue)
-  page.drawText(`INVOICE #${invoiceData.invoice_number}`, {
-    x: width - margin - 60,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: darkBlue,
-  })
-  yPosition -= 22;
-  // Due Date (right)
-  page.drawText('DUE DATE', {
-    x: width - margin - 60,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: gray,
-  })
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 30);
-  page.drawText(dueDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }), {
-    x: width - margin - 60,
-    y: yPosition - 12,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  yPosition -= 22;
-  // --- End Invoice Details ---
-
-  // --- Table header improvements ---
-  // Items table header
-  page.drawRectangle({
-    x: margin,
-    y: yPosition,
-    width: width - (2 * margin),
-    height: 12,
-    color: darkBlue,
-  });
-  yPosition -= 9;
-  // Table headers
-  page.drawText('Item Description', {
-    x: margin + 5,
-    y: yPosition,
-    size: 11,
-    font: boldFont,
-    color: white,
-  });
-  page.drawText('Qty', {
-    x: margin + 120,
-    y: yPosition,
-    size: 11,
-    font: boldFont,
-    color: white,
-  });
-  page.drawText('Unit Price', {
-    x: margin + 140,
-    y: yPosition,
-    size: 11,
-    font: boldFont,
-    color: white,
-  });
-  page.drawText('Total', {
-    x: margin + 170,
-    y: yPosition,
-    size: 11,
-    font: boldFont,
-    color: white,
-  });
-  yPosition -= 12;
-  // --- Totals section improvements ---
-  page.drawRectangle({
-    x: totalLabelX - 10,
-    y: yPosition - 25,
-    width: 110,
-    height: 40,
-    color: lightBlue,
-  });
-  page.drawText('SUBTOTAL', {
-    x: totalLabelX,
-    y: yPosition,
-    size: 13,
-    font: boldFont,
-    color: darkBlue,
-  });
-  page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
-    x: totalValueX,
-    y: yPosition,
-    size: 13,
-    font: boldFont,
-    color: darkBlue,
-  });
-  yPosition -= 18;
-  page.drawText('TOTAL', {
-    x: totalLabelX,
-    y: yPosition,
-    size: 15,
-    font: boldFont,
-    color: darkBlue,
-  });
-  page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
-    x: totalValueX,
-    y: yPosition,
-    size: 15,
-    font: boldFont,
-    color: darkBlue,
-  });
-  // --- Footer ---
-  yPosition = 30;
-  page.drawText('Thank you for your business!', {
-    x: width / 2 - 80,
-    y: yPosition,
-    size: 11,
-    font: font,
-    color: gray,
-  });
-  
-  // Save the PDF
-  return await pdfDoc.save()
-}

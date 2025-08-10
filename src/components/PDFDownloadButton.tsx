@@ -27,30 +27,18 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({ invoiceData, clas
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
-      const pdfBlob = await PDFInvoiceGenerator.generatePDF(invoiceData);
       const fileName = `invoice-${invoiceData.invoice_number}.pdf`;
-      // Try to upload to Supabase Storage (public bucket 'invoices')
-      const { data: existing, error: existsError } = await supabase
-        .storage
+      // Fetch the PDF from Supabase Storage
+      const { data, error } = await supabase.storage
         .from('invoices')
-        .list('', { search: fileName });
-      let alreadyUploaded = false;
-      if (existing && existing.some(f => f.name === fileName)) {
-        alreadyUploaded = true;
-      }
-      if (!alreadyUploaded) {
-        const { error: uploadError } = await supabase.storage
-          .from('invoices')
-          .upload(fileName, pdfBlob, { upsert: false, contentType: 'application/pdf' });
-        if (uploadError) {
-          // If file already exists, ignore; else show error
-          if (!uploadError.message.includes('The resource already exists')) {
-            throw uploadError;
-          }
-        }
+        .download(fileName);
+      if (error || !data) {
+        console.error('Error fetching PDF from storage:', error);
+        alert('PDF not found in storage. Please generate the invoice first.');
+        return;
       }
       // Create download link
-      const url = URL.createObjectURL(pdfBlob);
+      const url = URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName;
@@ -59,8 +47,12 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({ invoiceData, clas
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error generating or uploading PDF:', error);
-      alert('Failed to generate or upload PDF. Please try again.');
+      console.error('Error downloading PDF:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      alert('Failed to download PDF. Please check the console for details.');
     } finally {
       setIsGenerating(false);
     }
