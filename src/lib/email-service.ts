@@ -26,8 +26,8 @@ export interface InventoryRequestEmailData {
 
 export class EmailService {
   private static instance: EmailService;
-  private adminEmail = 'siddhantgupta385@gmail.com';
-  private supabaseUrl = 'https://qgouamzshrtnkwyzwafq.supabase.co';
+  private adminEmail = "irene.gustobrands@gmail.com";
+  private supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ggxinfypwzzzntcrnlle.supabase.co';
 
   static getInstance(): EmailService {
     if (!EmailService.instance) {
