@@ -26,10 +26,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase, InventoryRequest } from "@/lib/supabase";
 import { emailService } from "@/lib/email-service";
 import PDFDownloadButton from "./PDFDownloadButton";
+import { Calendar } from './ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const invoiceSchema = z.object({
   invoice_number: z.string().min(1, "Invoice number is required"),
   admin_notes: z.string().optional(),
+  due_date: z.date({ required_error: 'Due date is required' }),
 });
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
@@ -40,15 +43,22 @@ const AdminDashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState<InventoryRequest | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
+    defaultValues: {
+      due_date: (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d; })(),
+    },
   });
+  const dueDate = watch('due_date');
 
   useEffect(() => {
     fetchRequests();
@@ -149,6 +159,7 @@ const AdminDashboard = () => {
           status: 'completed',
           invoice_number: data.invoice_number,
           admin_notes: data.admin_notes,
+          due_date: data.due_date.toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('id', selectedRequest.id);
@@ -164,6 +175,7 @@ const AdminDashboard = () => {
                 status: 'completed',
                 invoice_number: data.invoice_number,
                 admin_notes: data.admin_notes,
+                due_date: data.due_date.toISOString(),
                 updated_at: new Date().toISOString()
               } 
             : req
@@ -180,6 +192,7 @@ const AdminDashboard = () => {
         status: 'completed',
         invoice_number: data.invoice_number,
         admin_notes: data.admin_notes,
+        due_date: data.due_date.toISOString(),
       });
 
       if (emailSuccess) {
@@ -434,6 +447,34 @@ const AdminDashboard = () => {
                                   />
                                 </div>
                                 
+                                <div className="space-y-2">
+                                  <Label htmlFor="due_date">Due Date</Label>
+                                  <div className="mb-4">
+                                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                                      <PopoverTrigger asChild>
+                                        <button
+                                          type="button"
+                                          className="w-full bg-white border rounded-lg shadow px-4 py-2 text-left font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                                        >
+                                          {dueDate ? dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Pick a date'}
+                                        </button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="p-0 w-auto bg-white rounded-lg shadow border">
+                                        <Calendar
+                                          mode="single"
+                                          selected={dueDate}
+                                          onSelect={date => {
+                                            setValue('due_date', date || new Date());
+                                            setPopoverOpen(false);
+                                          }}
+                                          className="border-none"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                    {errors.due_date && <span className="text-red-500 text-xs">{errors.due_date.message}</span>}
+                                  </div>
+                                </div>
+                                
                                 <Button
                                   type="submit"
                                   className="w-full"
@@ -462,6 +503,7 @@ const AdminDashboard = () => {
                               items: request.items,
                               total_amount: request.total_amount,
                               admin_notes: request.admin_notes,
+                              due_date: request.due_date,
                             }}
                           />
                         )}

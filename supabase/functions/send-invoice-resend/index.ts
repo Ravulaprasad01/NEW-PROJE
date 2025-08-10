@@ -307,372 +307,145 @@ async function createPDFAttachment(invoiceData: InvoiceData): Promise<Uint8Array
   
   yPosition -= 10
   
-  // Invoice details in two columns
-  const leftColX = margin
-  const rightColX = width / 2
-  
-  // Sales Order
-  page.drawText('Sales Order #', {
-    x: leftColX,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: gray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText(`S${Math.floor(Math.random() * 1000000)}`, {
-    x: leftColX,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  // Invoice Date
-  yPosition += 5
+  // --- Remove Sales Order section entirely ---
+  // Invoice Date (left)
   page.drawText('INVOICE DATE', {
-    x: rightColX,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: gray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText(new Date().toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  }), {
-    x: rightColX,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  // Due Date
-  yPosition -= 8
-  page.drawText('DUE DATE', {
-    x: rightColX,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: gray,
-  })
-  
-  yPosition -= 5
-  
-  const dueDate = new Date()
-  dueDate.setDate(dueDate.getDate() + 30)
-  page.drawText(dueDate.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  }), {
-    x: rightColX,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 15
-  
-  // Buyer and Delivery section header
-  page.drawRectangle({
     x: margin,
     y: yPosition,
-    width: width - (2 * margin),
-    height: 8,
+    size: 10,
+    font: boldFont,
+    color: gray,
+  })
+  page.drawText(new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }), {
+    x: margin,
+    y: yPosition - 12,
+    size: 10,
+    font: font,
+    color: darkGray,
+  })
+  // Invoice Number (right, bold, blue)
+  page.drawText(`INVOICE #${invoiceData.invoice_number}`, {
+    x: width - margin - 60,
+    y: yPosition,
+    size: 12,
+    font: boldFont,
     color: darkBlue,
   })
-  
-  yPosition -= 6
-  
-  page.drawText('Buyer\'s Name', {
-    x: margin + 5,
+  yPosition -= 22;
+  // Due Date (right)
+  page.drawText('DUE DATE', {
+    x: width - margin - 60,
     y: yPosition,
     size: 10,
     font: boldFont,
-    color: white,
+    color: gray,
   })
-  
-  page.drawText('Delivery Name & Address', {
-    x: width / 2,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: white,
-  })
-  
-  yPosition -= 10
-  
-  // Buyer details (left)
-  page.drawText(invoiceData.user_name, {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText(invoiceData.user_email, {
-    x: margin,
-    y: yPosition,
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 30);
+  page.drawText(dueDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }), {
+    x: width - margin - 60,
+    y: yPosition - 12,
     size: 10,
     font: font,
     color: darkGray,
   })
-  
-  yPosition -= 5
-  
-  page.drawText('City, Country', {
-    x: margin,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  // Delivery details (right) - same as buyer for now
-  yPosition += 10
-  
-  page.drawText(invoiceData.user_name, {
-    x: width / 2,
-    y: yPosition,
-    size: 10,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText(invoiceData.user_email, {
-    x: width / 2,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 5
-  
-  page.drawText('City, Country', {
-    x: width / 2,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  })
-  
-  yPosition -= 15
-  
+  yPosition -= 22;
+  // --- End Invoice Details ---
+
+  // --- Table header improvements ---
   // Items table header
   page.drawRectangle({
     x: margin,
     y: yPosition,
     width: width - (2 * margin),
-    height: 8,
+    height: 12,
     color: darkBlue,
-  })
-  
-  yPosition -= 6
-  
-  // Table headers - match Excel format exactly
-  const descColX = margin + 5
-  const qtyColX = margin + 120
-  const priceColX = margin + 140
-  const totalColX = margin + 170
-  
+  });
+  yPosition -= 9;
+  // Table headers
   page.drawText('Item Description', {
-    x: descColX,
+    x: margin + 5,
     y: yPosition,
-    size: 10,
+    size: 11,
     font: boldFont,
     color: white,
-  })
-  
+  });
   page.drawText('Qty', {
-    x: qtyColX,
+    x: margin + 120,
     y: yPosition,
-    size: 10,
+    size: 11,
     font: boldFont,
     color: white,
-  })
-  
+  });
   page.drawText('Unit Price', {
-    x: priceColX,
+    x: margin + 140,
     y: yPosition,
-    size: 10,
+    size: 11,
     font: boldFont,
     color: white,
-  })
-  
+  });
   page.drawText('Total', {
-    x: totalColX,
+    x: margin + 170,
     y: yPosition,
-    size: 10,
+    size: 11,
     font: boldFont,
     color: white,
-  })
-  
-  yPosition -= 10
-  
-  // Items with alternating row colors
-  for (let i = 0; i < invoiceData.items.length; i++) {
-    const item = invoiceData.items[i]
-    
-    // Alternate row colors
-    if (i % 2 === 0) {
-      page.drawRectangle({
-        x: margin,
-        y: yPosition - 5,
-        width: width - (2 * margin),
-        height: 8,
-        color: lightGray,
-      })
-    }
-    
-    // Product description
-    page.drawText(item.product_name, {
-      x: descColX,
-      y: yPosition,
-      size: 10,
-      font: font,
-      color: darkGray,
-    })
-    
-    // Quantity
-    page.drawText(item.quantity.toString(), {
-      x: qtyColX,
-      y: yPosition,
-      size: 10,
-      font: font,
-      color: darkGray,
-    })
-    
-    // Unit price
-    page.drawText(`¥${item.unit_price.toLocaleString()}`, {
-      x: priceColX,
-      y: yPosition,
-      size: 10,
-      font: font,
-      color: darkGray,
-    })
-    
-    // Total
-    page.drawText(`¥${item.total_price.toLocaleString()}`, {
-      x: totalColX,
-      y: yPosition,
-      size: 10,
-      font: font,
-      color: darkGray,
-    })
-    
-    yPosition -= 8
-  }
-  
-  yPosition -= 10
-  
-  // Totals section
-  const totalLabelX = width - margin - 80
-  const totalValueX = width - margin - 30
-  
-  // Subtotal
-  page.drawText('SUBTOTAL', {
-    x: totalLabelX,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
-    x: totalValueX,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  yPosition -= 8
-  
-  // Total
-  page.drawText('TOTAL', {
-    x: totalLabelX,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
-    x: totalValueX,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  // Light blue background for totals
+  });
+  yPosition -= 12;
+  // --- Totals section improvements ---
   page.drawRectangle({
-    x: totalLabelX - 5,
-    y: yPosition - 15,
-    width: 85,
-    height: 20,
+    x: totalLabelX - 10,
+    y: yPosition - 25,
+    width: 110,
+    height: 40,
     color: lightBlue,
-  })
-  
-  // Redraw totals on background
-  yPosition += 8
+  });
   page.drawText('SUBTOTAL', {
     x: totalLabelX,
     y: yPosition,
-    size: 12,
+    size: 13,
     font: boldFont,
-    color: darkGray,
-  })
-  
+    color: darkBlue,
+  });
   page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
     x: totalValueX,
     y: yPosition,
-    size: 12,
+    size: 13,
     font: boldFont,
-    color: darkGray,
-  })
-  
-  yPosition -= 8
+    color: darkBlue,
+  });
+  yPosition -= 18;
   page.drawText('TOTAL', {
     x: totalLabelX,
     y: yPosition,
-    size: 12,
+    size: 15,
     font: boldFont,
-    color: darkGray,
-  })
-  
+    color: darkBlue,
+  });
   page.drawText(`¥${invoiceData.total_amount.toLocaleString()}`, {
     x: totalValueX,
     y: yPosition,
-    size: 12,
+    size: 15,
     font: boldFont,
-    color: darkGray,
-  })
-  
-  // Footer
-  yPosition = 30
+    color: darkBlue,
+  });
+  // --- Footer ---
+  yPosition = 30;
   page.drawText('Thank you for your business!', {
     x: width / 2 - 80,
     y: yPosition,
-    size: 10,
+    size: 11,
     font: font,
     color: gray,
-  })
+  });
   
   // Save the PDF
   return await pdfDoc.save()
