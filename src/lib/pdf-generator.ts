@@ -178,12 +178,11 @@ export class PDFInvoiceGenerator {
       pdf.setFillColor(30, 64, 175);
       pdf.rect(margin, yPosition, contentWidth, 8, 'F');
 
-      // Adjusted column widths for better fit
-      // Description column is now smaller to allow "Total" heading to fit
-      const descColWidth = 75;
-      const qtyColWidth = 20;
-      const priceColWidth = 35;
-      const totalColWidth = 35;
+      // Adjusted column widths for better fit, with a larger width for description to match the sample image
+      const descColWidth = 90;
+      const qtyColWidth = 18;
+      const priceColWidth = 32;
+      const totalColWidth = 32;
 
       const descColX = margin + 5;
       const qtyColX = descColX + descColWidth;
