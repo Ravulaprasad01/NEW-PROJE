@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inventory_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string | null
+          items: Json
+          status: string
+          total_amount: number
+          updated_at: string | null
+          user_email: string
+          user_name: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          items: Json
+          status?: string
+          total_amount: number
+          updated_at?: string | null
+          user_email: string
+          user_name: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          items?: Json
+          status?: string
+          total_amount?: number
+          updated_at?: string | null
+          user_email?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

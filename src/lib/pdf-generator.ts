@@ -5,6 +5,7 @@ export interface InvoiceData {
   user_email: string;
   invoice_number: string;
   items: Array<{
+    product_id: string;
     product_name: string;
     quantity: number;
     unit_price: number;
@@ -13,6 +14,12 @@ export interface InvoiceData {
   total_amount: number;
   admin_notes?: string;
   due_date?: string | Date;
+  buyer_address_lines?: string[];
+  delivery_name?: string;
+  delivery_address_lines?: string[];
+  seller_name: string;
+  seller_email: string;
+  seller_address_lines: string[];
 }
 
 export class PDFInvoiceGenerator {
@@ -27,12 +34,7 @@ export class PDFInvoiceGenerator {
       
       let yPosition = margin;
       
-      // Thank you heading at the top
-      // Heading: Thank you
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
-      pdf.setTextColor(30, 64, 175);
-      pdf.text('Thank you for your business!', pageWidth / 2, yPosition, { align: 'center' });
+      
       yPosition += 10;
 
       // Company name (left) and invoice number (right, aligned)
@@ -49,6 +51,26 @@ export class PDFInvoiceGenerator {
       pdf.text(invoiceText, pageWidth - margin, yPosition, { align: 'right' });
 
       yPosition += 8;
+
+      // Seller address block below company name
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+      pdf.setTextColor(30, 41, 59);
+      
+      // Hardcoded seller address lines
+      const sellerAddressLines = [
+        'Room B, LG2/F Kai Wong Commercial Building',
+        '222 Queen\'s Road Central',
+        'Hong Kong'
+      ];
+      
+      sellerAddressLines.forEach((line, index) => {
+        pdf.text(line, margin, yPosition + 10 + (index * 5), { align: 'left' });
+      });
+      
+      yPosition += 35; // Move down to make space for address block
+
+
 
       // Invoice details header (single row)
       pdf.setFont('helvetica', 'bold');
@@ -122,18 +144,18 @@ export class PDFInvoiceGenerator {
       // Prepare left (Buyer's Name) and right (Delivery Name & Address) blocks
       // Use bold for company name, normal for address lines
 
-      // Buyer's Name block (left)
+      // Buyer's Name block (left) - use name and email from form
       const buyerNameLines = [
         { text: invoiceData.user_name, font: ['helvetica', 'bold'], color: [30, 41, 59] },
-        ...(invoiceData.buyer_address_lines || [])
-          .map(line => ({ text: line, font: ['helvetica', 'normal'], color: [30, 41, 59] }))
+        { text: invoiceData.user_email, font: ['helvetica', 'normal'], color: [30, 41, 59] }
       ];
 
-      // Delivery Name & Address block (right)
+      // Delivery Name & Address block (right) - hardcoded
       const deliveryNameLines = [
-        { text: invoiceData.delivery_name, font: ['helvetica', 'bold'], color: [30, 41, 59] },
-        ...(invoiceData.delivery_address_lines || [])
-          .map(line => ({ text: line, font: ['helvetica', 'normal'], color: [30, 41, 59] }))
+        { text: "Planet Pet KK", font: ['helvetica', 'bold'], color: [30, 41, 59] },
+        { text: "1-6-40 Nishiasada", font: ['helvetica', 'normal'], color: [30, 41, 59] },
+        { text: "Hamamatsu City", font: ['helvetica', 'normal'], color: [30, 41, 59] },
+        { text: "Japan 43208045", font: ['helvetica', 'normal'], color: [30, 41, 59] }
       ];
 
       // Calculate max lines for row height
@@ -179,42 +201,6 @@ export class PDFInvoiceGenerator {
 
       yPosition += 5;
 
-      // Draw left (FROM) and right (TO) blocks line by line, in the same row
-      for (let i = 0; i < blockLineCount; i++) {
-        // Left block (company address)
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(10);
-        pdf.setTextColor(30, 41, 59);
-        if (i < leftBlockLines.length) {
-          pdf.text(leftBlockLines[i], leftBlockX, yPosition, { align: 'left' });
-        }
-
-        // Right block (buyer info)
-        if (i < rightBlockLines.length) {
-          const line = rightBlockLines[i];
-          pdf.setFont(line.font[0], line.font[1]);
-          pdf.setFontSize(10);
-          // Fix for TS: color is [number, number, number]
-          pdf.setTextColor(
-            Array.isArray(line.color) && line.color.length === 3
-              ? line.color[0] : 0,
-            Array.isArray(line.color) && line.color.length === 3
-              ? line.color[1] : 0,
-            Array.isArray(line.color) && line.color.length === 3
-              ? line.color[2] : 0
-          );
-          pdf.text(line.text, rightBlockX, yPosition, { align: 'right' });
-        }
-
-        yPosition += 5;
-      }
-
-      // Add a little extra space after the block
-      yPosition += 7;
-
-      // Move yPosition down for next section (max of left/right block height)
-      yPosition += Math.max(10, rightBlockLines.length * 5) + 7;
-
       // Items table with borders
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
@@ -222,18 +208,21 @@ export class PDFInvoiceGenerator {
       pdf.setFillColor(30, 64, 175);
       pdf.rect(margin, yPosition, contentWidth, 8, 'F');
 
-      // Adjusted column widths for better fit, with a larger width for description to match the sample image
-      const descColWidth = 90;
+      // Adjusted column widths for better fit, including product code column
+      const codeColWidth = 25;
+      const descColWidth = 65;
       const qtyColWidth = 18;
       const priceColWidth = 32;
       const totalColWidth = 32;
 
-      const descColX = margin + 5;
+      const codeColX = margin + 5;
+      const descColX = codeColX + codeColWidth;
       const qtyColX = descColX + descColWidth;
       const priceColX = qtyColX + qtyColWidth;
       const totalColX = priceColX + priceColWidth;
 
       yPosition += 6;
+      pdf.text('Code', codeColX, yPosition);
       pdf.text('Item Description', descColX, yPosition);
       pdf.text('Qty', qtyColX, yPosition);
       pdf.text('Unit Price', priceColX, yPosition);
@@ -250,19 +239,20 @@ export class PDFInvoiceGenerator {
         // Row background
         if (index % 2 === 0) {
           pdf.setFillColor(248, 250, 252);
-          pdf.rect(margin, yPosition - 3, contentWidth, 8, 'F');
+          pdf.rect(margin, yPosition - 3, contentWidth, 18, 'F');
         }
         // Borders
         pdf.line(margin, yPosition - 3, margin + contentWidth, yPosition - 3); // row top
-        pdf.line(margin, yPosition + 5, margin + contentWidth, yPosition + 5); // row bottom
-        pdf.line(margin, yPosition - 3, margin, yPosition + 5); // left
-        pdf.line(margin + contentWidth, yPosition - 3, margin + contentWidth, yPosition + 5); // right
+        pdf.line(margin, yPosition + 15, margin + contentWidth, yPosition + 15); // row bottom
+        pdf.line(margin, yPosition - 3, margin, yPosition + 15); // left
+        pdf.line(margin + contentWidth, yPosition - 3, margin + contentWidth, yPosition + 15); // right
         // Data
-        pdf.text(item.product_name, descColX, yPosition + 3, { maxWidth: descColWidth - 2 });
-        pdf.text(item.quantity.toString(), qtyColX, yPosition + 3, { align: 'left' });
-        pdf.text(`¥${item.unit_price.toLocaleString()}`, priceColX, yPosition + 3, { align: 'left' });
-        pdf.text(`¥${item.total_price.toLocaleString()}`, totalColX, yPosition + 3, { align: 'left' });
-        yPosition += 8;
+        pdf.text(item.product_id, codeColX, yPosition + 9, { maxWidth: codeColWidth - 2 });
+        pdf.text(item.product_name, descColX, yPosition + 9, { maxWidth: descColWidth - 2 });
+        pdf.text(item.quantity.toString(), qtyColX, yPosition + 9, { align: 'left' });
+        pdf.text(`¥${item.unit_price.toLocaleString()}`, priceColX, yPosition + 9, { align: 'left' });
+        pdf.text(`¥${item.total_price.toLocaleString()}`, totalColX, yPosition + 9, { align: 'left' });
+        yPosition += 18;
       });
       // Table bottom border
       // pdf.line(margin, yPosition, margin + contentWidth, yPosition);
@@ -278,8 +268,12 @@ export class PDFInvoiceGenerator {
       pdf.text(`¥${invoiceData.total_amount.toLocaleString()}`, pageWidth - margin - 20, yPosition + 10, { align: 'right' });
       yPosition += 20;
 
-      // Footer (optional)
-      // ...
+      // Thank you Footer at the bottom
+      // Heading: Thank you
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.setTextColor(30, 64, 175);
+      pdf.text('Thank you for your business!', pageWidth / 2, yPosition, { align: 'center' });
 
       // Always return a Blob
       const pdfBlob = pdf.output('blob');

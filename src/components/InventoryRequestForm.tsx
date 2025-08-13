@@ -349,10 +349,10 @@ const InventoryRequestForm = () => {
                           <div className="flex items-center gap-2">
                             <Package className="h-4 w-4" />
                             <span className="font-semibold">{product.name}</span>
-                            <Badge variant="secondary">{product.currency}</Badge>
+                            <Badge variant="secondary">{product.id}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {product.description}
+                            {product.description} 
                           </p>
                           <p className="text-sm font-medium mt-1">
                             ¥{product.price.toLocaleString()} per unit
@@ -399,7 +399,11 @@ const InventoryRequestForm = () => {
                   <div className="space-y-2">
                     {getSelectedItems().map((item) => (
                       <div key={item.product_id} className="flex justify-between items-center">
-                        <span>{item.product_name} x {item.quantity}</span>
+                        <div className="flex-1">
+                          <span className="font-medium">{item.product_name}</span>
+                          <span className="text-sm text-muted-foreground ml-2">({item.product_id})</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">x{item.quantity}</span>
                         <span className="font-medium">¥{item.total_price.toLocaleString()}</span>
                       </div>
                     ))}

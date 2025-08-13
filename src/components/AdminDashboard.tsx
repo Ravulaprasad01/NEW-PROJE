@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      due_date: (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d; })(),
+      due_date: (() => { const d = new Date(); d.setDate(d.getDate() + 15); return d; })(),
     },
   });
   const dueDate = watch('due_date');
@@ -192,6 +192,18 @@ const AdminDashboard = () => {
         invoice_number: data.invoice_number,
         admin_notes: data.admin_notes,
         due_date: data.due_date,
+        seller_name: 'Gusto Brands Limited',
+        seller_email: 'irene.gustobrands@gmail.com',
+        seller_address_lines: [
+          'Room B, LG2/F Kai Wong Commercial Building',
+          '222 Queen\'s Road Central',
+          'Hong Kong'
+        ],
+        delivery_address_lines: [
+          "1-6-40 Nishiasada",
+          "Hamamatsu City",
+          "Japan 43208045"
+        ],
       });
       const fileName = `invoice-${data.invoice_number}.pdf`;
       const { error: uploadError } = await supabase.storage
@@ -378,7 +390,7 @@ const AdminDashboard = () => {
                         <div className="space-y-1 mb-3">
                           {request.items.map((item, index) => (
                             <div key={index} className="text-sm">
-                              {item.product_name} x {item.quantity} = ¥{item.total_price.toLocaleString()}
+                              <span className="font-medium text-blue-600">[{item.product_id}]</span> {item.product_name} x {item.quantity} = ¥{item.total_price.toLocaleString()}
                             </div>
                           ))}
                         </div>
@@ -522,7 +534,13 @@ const AdminDashboard = () => {
                               items: request.items,
                               total_amount: request.total_amount,
                               admin_notes: request.admin_notes,
-                              due_date: request.due_date,
+                              seller_name: 'Gusto Brands Limited',
+                              seller_email: 'irene.gustobrands@gmail.com',
+                              seller_address_lines: [
+                                'Room B, LG2/F Kai Wong Commercial Building',
+                                '222 Queen\'s Road Central',
+                                'Hong Kong'
+                              ],
                             }}
                           />
                         )}

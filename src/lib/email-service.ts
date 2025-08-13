@@ -12,6 +12,7 @@ export interface InventoryRequestEmailData {
   user_name: string;
   user_email: string;
   items: Array<{
+    product_id: string;
     product_name: string;
     quantity: number;
     unit_price: number;
@@ -22,13 +23,14 @@ export interface InventoryRequestEmailData {
   status: 'pending' | 'approved' | 'rejected' | 'completed';
   invoice_number?: string;
   admin_notes?: string;
+  due_date?: string;
 }
 
 export class EmailService {
   private static instance: EmailService;
   // Use environment variable for admin email
-  private adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "irene.gustobrands@gmail.com";
-  private supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ggxinfypwzzzntcrnlle.supabase.co';
+  private adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+  private supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
   static getInstance(): EmailService {
     if (!EmailService.instance) {
@@ -197,7 +199,7 @@ Email: ${invoiceData.user_email}
 
 Items:
 ${invoiceData.items.map(item => 
-  `${item.product_name} x ${item.quantity} = ¥${item.total_price.toLocaleString()}`
+  `${item.product_id} - ${item.product_name} x ${item.quantity} = ¥${item.total_price.toLocaleString()}`
 ).join('\n')}
 
 Total Amount: ¥${invoiceData.total_amount.toLocaleString()}
@@ -239,26 +241,28 @@ Gusto Brands Team
           <p><strong>Email:</strong> ${invoiceData.user_email}</p>
         </div>
         
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${invoiceData.items.map(item => `
+                  <table>
+            <thead>
               <tr>
-                <td>${item.product_name}</td>
-                <td>${item.quantity}</td>
-                <td>¥${item.unit_price.toLocaleString()}</td>
-                <td>¥${item.total_price.toLocaleString()}</td>
+                <th>Code</th>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${invoiceData.items.map(item => `
+                <tr>
+                  <td><strong>${item.product_id}</strong></td>
+                  <td>${item.product_name}</td>
+                  <td>${item.quantity}</td>
+                  <td>¥${item.unit_price.toLocaleString()}</td>
+                  <td>¥${item.total_price.toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         
         <div class="total">
           <p><strong>Total Amount: ¥${invoiceData.total_amount.toLocaleString()}</strong></p>

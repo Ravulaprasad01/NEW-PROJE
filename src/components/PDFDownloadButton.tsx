@@ -10,6 +10,7 @@ interface PDFDownloadButtonProps {
     user_email: string;
     invoice_number: string;
     items: Array<{
+      product_id: string;
       product_name: string;
       quantity: number;
       unit_price: number;
@@ -17,6 +18,9 @@ interface PDFDownloadButtonProps {
     }>;
     total_amount: number;
     admin_notes?: string;
+    seller_name: string;
+    seller_email: string;
+    seller_address_lines: string[];
   };
   className?: string;
 }
