@@ -99,39 +99,83 @@ export class PDFInvoiceGenerator {
       pdf.setFontSize(10);
       pdf.setTextColor(30, 41, 59);
 
-      // "FROM - TO -" row: Company address (FROM) on left, Buyer info (TO) on right, in the same row
-
-      // Define FROM and TO labels
-      const fromLabel = 'FROM';
-      const toLabel = 'TO';
-
-      // Company address lines
-      const leftBlockLines = [
-        'Room B, LG2/F Kai Wong Commercial Building',
-        "222 Queen's Road Central",
-        'Hong Kong'
-      ];
-
-      // Buyer info lines
-      const rightBlockLines = [
-        { text: invoiceData.user_name, font: ['helvetica', 'bold'], color: [30, 41, 59] },
-        { text: invoiceData.user_email, font: ['helvetica', 'normal'], color: [30, 41, 59] }
-      ];
-
-      // Calculate vertical space needed (max of left/right block lines)
-      const blockLineCount = Math.max(leftBlockLines.length, rightBlockLines.length);
-
-      // X positions
-      const leftBlockX = margin;
-      const rightBlockX = pageWidth - margin;
-      const midX = pageWidth / 2;
-
-      // Draw FROM and TO labels in blue, bold, on the same row
+      // Buyer's Name & Delivery Name and Address table header (blue, bold, white text)
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
-      pdf.setTextColor(30, 64, 175);
-      pdf.text(fromLabel, leftBlockX, yPosition, { align: 'left' });
-      pdf.text(toLabel, rightBlockX, yPosition, { align: 'right' });
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFillColor(30, 64, 175);
+
+      // Table column widths
+      const leftColWidth = (contentWidth / 2);
+      const rightColWidth = (contentWidth / 2);
+
+      // Draw header background
+      pdf.rect(margin, yPosition, leftColWidth, 7, 'F');
+      pdf.rect(margin + leftColWidth, yPosition, rightColWidth, 7, 'F');
+
+      // Draw header text
+      pdf.text("Buyer's Name", margin + 2, yPosition + 5, { align: 'left' });
+      pdf.text('Delivery Name & Address', margin + leftColWidth + 2, yPosition + 5, { align: 'left' });
+
+      yPosition += 8;
+
+      // Prepare left (Buyer's Name) and right (Delivery Name & Address) blocks
+      // Use bold for company name, normal for address lines
+
+      // Buyer's Name block (left)
+      const buyerNameLines = [
+        { text: invoiceData.user_name, font: ['helvetica', 'bold'], color: [30, 41, 59] },
+        ...(invoiceData.buyer_address_lines || [])
+          .map(line => ({ text: line, font: ['helvetica', 'normal'], color: [30, 41, 59] }))
+      ];
+
+      // Delivery Name & Address block (right)
+      const deliveryNameLines = [
+        { text: invoiceData.delivery_name, font: ['helvetica', 'bold'], color: [30, 41, 59] },
+        ...(invoiceData.delivery_address_lines || [])
+          .map(line => ({ text: line, font: ['helvetica', 'normal'], color: [30, 41, 59] }))
+      ];
+
+      // Calculate max lines for row height
+      const maxLines = Math.max(buyerNameLines.length, deliveryNameLines.length);
+
+      // Draw each line in the left and right columns
+      for (let i = 0; i < maxLines; i++) {
+        // Left column (Buyer's Name)
+        if (i < buyerNameLines.length) {
+          const line = buyerNameLines[i];
+          pdf.setFont(line.font[0], line.font[1]);
+          pdf.setFontSize(10);
+          // Ensure color is a tuple of three numbers
+          if (Array.isArray(line.color) && line.color.length === 3) {
+            pdf.setTextColor(line.color[0], line.color[1], line.color[2]);
+          } else {
+            pdf.setTextColor(0, 0, 0);
+          }
+          // Ensure text is a string
+          pdf.text(String(line.text), margin + 2, yPosition + 5, { align: 'left' });
+        }
+
+        // Right column (Delivery Name & Address)
+        if (i < deliveryNameLines.length) {
+          const line = deliveryNameLines[i];
+          pdf.setFont(line.font[0], line.font[1]);
+          pdf.setFontSize(10);
+          // Ensure color is a tuple of three numbers
+          if (Array.isArray(line.color) && line.color.length === 3) {
+            pdf.setTextColor(line.color[0], line.color[1], line.color[2]);
+          } else {
+            pdf.setTextColor(0, 0, 0);
+          }
+          // Ensure text is a string
+          pdf.text(String(line.text), margin + leftColWidth + 2, yPosition + 5, { align: 'left' });
+        }
+
+        yPosition += 6;
+      }
+
+      // Add a little extra space after the block
+      yPosition += 2;
 
       yPosition += 5;
 
