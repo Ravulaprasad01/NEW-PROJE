@@ -50,7 +50,7 @@ export class PDFInvoiceGenerator {
       pdf.setFontSize(12); // Use a smaller font size for the invoice number
       pdf.text(invoiceText, pageWidth - margin, yPosition, { align: 'right' });
 
-      yPosition += 8;
+      yPosition += 2;
 
       // Seller address block below company name
       pdf.setFont('helvetica', 'normal');
@@ -109,11 +109,6 @@ export class PDFInvoiceGenerator {
       pdf.setFontSize(12);
       pdf.setTextColor(30, 64, 175);
       // pdf.text(`INVOICE #${invoiceData.invoice_number}`, pageWidth - margin - 60, yPosition - 8);
-
-      // Blue bar under header
-      pdf.setFillColor(30, 64, 175);
-      pdf.rect(margin, yPosition, contentWidth, 3, 'F');
-      yPosition += 8;
 
       // Company address (left) and Buyer/Delivery info (right) in one justified row
       
@@ -208,12 +203,12 @@ export class PDFInvoiceGenerator {
       pdf.setFillColor(30, 64, 175);
       pdf.rect(margin, yPosition, contentWidth, 8, 'F');
 
-      // Adjusted column widths for better fit, including product code column
-      const codeColWidth = 25;
+      // Adjusted column widths for better fit, with broader code and description columns
+      const codeColWidth = 35;
       const descColWidth = 65;
-      const qtyColWidth = 18;
-      const priceColWidth = 32;
-      const totalColWidth = 32;
+      const qtyColWidth = 15;
+      const priceColWidth = 25;
+      const totalColWidth = 25;
 
       const codeColX = margin + 5;
       const descColX = codeColX + codeColWidth;
@@ -236,6 +231,32 @@ export class PDFInvoiceGenerator {
       pdf.setFontSize(10);
       pdf.setTextColor(30, 41, 59);
       invoiceData.items.forEach((item, index) => {
+        // Check if we need a new page before adding this row
+        if (yPosition > pageHeight - 80) { // Leave 80mm for total and footer
+          pdf.addPage();
+          yPosition = margin;
+          
+          // Re-draw table header on new page
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(10);
+          pdf.setTextColor(255, 255, 255);
+          pdf.setFillColor(30, 64, 175);
+          pdf.rect(margin, yPosition, contentWidth, 8, 'F');
+          
+          yPosition += 6;
+          pdf.text('Code', codeColX, yPosition);
+          pdf.text('Item Description', descColX, yPosition);
+          pdf.text('Qty', qtyColX, yPosition);
+          pdf.text('Unit Price', priceColX, yPosition);
+          pdf.text('Total', totalColX, yPosition);
+          yPosition += 4;
+          yPosition += 4;
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          pdf.setTextColor(30, 41, 59);
+        }
+        
         // Row background
         if (index % 2 === 0) {
           pdf.setFillColor(248, 250, 252);
@@ -258,6 +279,12 @@ export class PDFInvoiceGenerator {
       // pdf.line(margin, yPosition, margin + contentWidth, yPosition);
       yPosition += 10;
 
+      // Check if we need a new page for total and footer
+      if (yPosition > pageHeight - 60) { // Leave 60mm for total and footer
+        pdf.addPage();
+        yPosition = margin;
+      }
+      
       // Final Total (single, bold, distinct)
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(14);
@@ -268,12 +295,12 @@ export class PDFInvoiceGenerator {
       pdf.text(`¥${invoiceData.total_amount.toLocaleString()}`, pageWidth - margin - 20, yPosition + 10, { align: 'right' });
       yPosition += 20;
 
-      // Thank you Footer at the bottom
-      // Heading: Thank you
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
-      pdf.setTextColor(30, 64, 175);
+      // Thank you Footer at the bottom - lighter and smaller
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 116, 139); // Lighter gray color
       pdf.text('Thank you for your business!', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
 
       // Always return a Blob
       const pdfBlob = pdf.output('blob');

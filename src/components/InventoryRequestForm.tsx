@@ -403,8 +403,10 @@ const InventoryRequestForm = () => {
                           <span className="font-medium">{item.product_name}</span>
                           <span className="text-sm text-muted-foreground ml-2">({item.product_id})</span>
                         </div>
-                        <span className="text-sm text-muted-foreground">x{item.quantity}</span>
-                        <span className="font-medium">¥{item.total_price.toLocaleString()}</span>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-muted-foreground min-w-[40px] text-center">x{item.quantity}</span>
+                          <span className="font-medium min-w-[80px] text-right">¥{item.total_price.toLocaleString()}</span>
+                        </div>
                       </div>
                     ))}
                     <Separator />

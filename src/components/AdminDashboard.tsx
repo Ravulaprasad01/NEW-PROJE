@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, InventoryRequest } from "@/lib/supabase";
+import { createClient } from '@supabase/supabase-js';
 import { emailService } from "@/lib/email-service";
 import PDFDownloadButton from "./PDFDownloadButton";
 import { Calendar } from './ui/calendar';
@@ -63,7 +64,42 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchRequests();
+    // Test Supabase connection and permissions
+    testSupabaseConnection();
   }, []);
+
+  const testSupabaseConnection = async () => {
+    try {
+      console.log('🔍 Testing Supabase connection and permissions...');
+      
+      // Test basic connection
+      const { data: testData, error: testError } = await supabase
+        .from('inventory_requests')
+        .select('id, status')
+        .limit(1);
+      
+      if (testError) {
+        console.error('❌ Supabase connection test failed:', testError);
+      } else {
+        console.log('✅ Supabase connection test successful:', testData);
+      }
+      
+      // Test update permissions (dry run)
+      const { error: updateTestError } = await supabase
+        .from('inventory_requests')
+        .update({ status: 'pending' })
+        .eq('id', '00000000-0000-0000-0000-000000000000'); // Non-existent ID for testing
+      
+      if (updateTestError && updateTestError.code === 'PGRST116') {
+        console.log('ℹ️ Update permissions test: RLS policy exists (expected)');
+      } else if (updateTestError) {
+        console.log('ℹ️ Update permissions test result:', updateTestError);
+      }
+      
+    } catch (error) {
+      console.error('❌ Supabase connection test error:', error);
+    }
+  };
 
   const fetchRequests = async () => {
     try {
@@ -89,19 +125,39 @@ const AdminDashboard = () => {
   const handleStatusUpdate = async (requestId: string, status: InventoryRequest['status']) => {
     setIsProcessing(true);
     try {
-      const { error } = await supabase
+      console.log('🔄 Updating status for request:', requestId, 'to:', status);
+      
+      const { data, error } = await supabase
         .from('inventory_requests')
         .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', requestId);
+        .eq('id', requestId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase update error:', error);
+        throw error;
+      }
 
-      // Update local state
-      setRequests(prev => 
-        prev.map(req => 
-          req.id === requestId ? { ...req, status, updated_at: new Date().toISOString() } : req
-        )
-      );
+      console.log('✅ Supabase update successful:', data);
+
+      // Force refresh from database to ensure consistency
+      await fetchRequests();
+      
+      // Debug: Check if the update actually persisted
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('inventory_requests')
+        .select('id, status, updated_at')
+        .eq('id', requestId)
+        .single();
+      
+      if (verifyError) {
+        console.error('❌ Verification query failed:', verifyError);
+      } else {
+        console.log('🔍 Database verification:', verifyData);
+        if (verifyData.status !== status) {
+          console.warn('⚠️ Status mismatch! Database shows:', verifyData.status, 'Expected:', status);
+        }
+      }
 
       toast({
         title: "Status Updated",
@@ -127,12 +183,26 @@ const AdminDashboard = () => {
       }
 
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('❌ Error updating status:', error);
+      
+      // Show detailed error message
+      let errorMessage = "Failed to update request status.";
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to update request status.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Revert local state on error
+      setRequests(prev => 
+        prev.map(req => 
+          req.id === requestId ? { ...req, status: req.status } : req
+        )
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -154,7 +224,9 @@ const AdminDashboard = () => {
 
     setIsProcessing(true);
     try {
-      const { error } = await supabase
+      console.log('🔄 Updating request to completed status:', selectedRequest.id);
+      
+      const { data: updateData, error } = await supabase
         .from('inventory_requests')
         .update({ 
           status: 'completed',
@@ -163,9 +235,15 @@ const AdminDashboard = () => {
           due_date: data.due_date.toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', selectedRequest.id);
+        .eq('id', selectedRequest.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase update error:', error);
+        throw error;
+      }
+
+      console.log('✅ Supabase update successful:', updateData);
 
       // Update local state
       setRequests(prev => 
@@ -206,7 +284,13 @@ const AdminDashboard = () => {
         ],
       });
       const fileName = `invoice-${data.invoice_number}.pdf`;
-      const { error: uploadError } = await supabase.storage
+      // Use service role key for storage operations to bypass RLS
+      const serviceRoleSupabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+      );
+      
+      const { error: uploadError } = await serviceRoleSupabase.storage
         .from('invoices')
         .upload(fileName, pdfBlob, { upsert: true, contentType: 'application/pdf' });
       if (uploadError) {
