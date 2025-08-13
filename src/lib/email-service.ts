@@ -22,6 +22,7 @@ export interface InventoryRequestEmailData {
   status: 'pending' | 'approved' | 'rejected' | 'completed';
   invoice_number?: string;
   admin_notes?: string;
+  due_date?: string;
 }
 
 export class EmailService {

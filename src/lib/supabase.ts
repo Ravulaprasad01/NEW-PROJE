@@ -17,6 +17,7 @@ export interface InventoryRequest {
   updated_at: string
   invoice_number?: string
   admin_notes?: string
+  due_date?: string
 }
 
 export interface InventoryItem {

@@ -522,7 +522,6 @@ const AdminDashboard = () => {
                               items: request.items,
                               total_amount: request.total_amount,
                               admin_notes: request.admin_notes,
-                              due_date: request.due_date,
                             }}
                           />
                         )}
