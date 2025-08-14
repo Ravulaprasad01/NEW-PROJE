@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import turtleLogo from "/lovable-uploads/b814769a-cd9f-4e90-b24f-3ced5c92e75b.png";
+import turtleLogo from "/lovable-uploads/b70a8dda-c08b-4f58-a57b-d8b463de4909.png";
 
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
