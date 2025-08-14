@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import gustoLogo from "@/assets/gusto-logo.png";
+import turtleLogo from "/lovable-uploads/b814769a-cd9f-4e90-b24f-3ced5c92e75b.png";
 
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
@@ -20,7 +20,7 @@ const HeroSection = () => {
           {/* Logo */}
           <div className="mb-8">
             <img 
-              src={gustoLogo} 
+              src={turtleLogo} 
               alt="Gusto Brands Logo" 
               className="h-32 w-32 lg:h-48 lg:w-48 mx-auto mb-6 bg-transparent"
             />
