@@ -18,7 +18,7 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Logo */}
-          <div className="mb-8">
+          <div className="">
             <img 
               src={turtleLogo} 
               alt="Gusto Brands Logo" 
