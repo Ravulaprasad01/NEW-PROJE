@@ -42,7 +42,7 @@ const HeroSection = () => {
             variant="turquoise" 
             size="lg"
             onClick={() => scrollToSection('about')}
-            className="text-lg px-8 py-3"
+            className="text-lg px-8 py-3 text-primary"
           >
             Learn More
           </Button>
