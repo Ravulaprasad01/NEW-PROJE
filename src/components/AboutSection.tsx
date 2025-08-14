@@ -18,7 +18,7 @@ const AboutSection = () => {
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-8">
           {/* Asian Market Focus */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-primary/20 hover:border-primary/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-8 h-8 text-primary" />
@@ -33,7 +33,7 @@ const AboutSection = () => {
           </Card>
 
           {/* Trusted Partnerships */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-primary/20 hover:border-primary/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Handshake className="w-8 h-8 text-primary" />
@@ -48,7 +48,7 @@ const AboutSection = () => {
           </Card>
 
           {/* Delivering Value */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-primary/20 hover:border-primary/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <ShoppingCart className="w-8 h-8 text-primary" />
