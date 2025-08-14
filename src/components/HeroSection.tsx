@@ -22,7 +22,7 @@ const HeroSection = () => {
             <img 
               src={gustoLogo} 
               alt="Gusto Brands Logo" 
-              className="h-24 w-24 lg:h-32 lg:w-32 mx-auto mb-6"
+              className="h-32 w-32 lg:h-48 lg:w-48 mx-auto mb-6 bg-transparent"
             />
           </div>
 
