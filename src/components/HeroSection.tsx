@@ -22,7 +22,7 @@ const HeroSection = () => {
             <img 
               src={turtleLogo} 
               alt="Gusto Brands Logo" 
-              className="h-48 w-48 mx-auto mb-6 bg-transparent object-cover rounded-lg"
+              className="h-48 w-48 mx-auto bg-transparent object-cover rounded-lg"
             />
           </div>
 
