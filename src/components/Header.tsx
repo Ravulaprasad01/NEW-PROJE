@@ -53,7 +53,7 @@ const Header = () => {
               alt="Gusto Brands Logo" 
               className="h-10 w-10"
             />
-            <span className="text-xl font-bold">Gusto Brands</span>
+            <span className="text-xl font-bold text-turquoise">Gusto Brands</span>
           </button>
 
           {/* Desktop Navigation */}
