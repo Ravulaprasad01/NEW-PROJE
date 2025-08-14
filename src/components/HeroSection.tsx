@@ -50,7 +50,7 @@ const HeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="text-lg px-8 py-3 border-turquoise text-turquoise hover:bg-turquoise hover:text-primary"
+                className="text-lg px-8 py-3 border-turquoise text-primary hover:bg-turquoise hover:text-primary"
               >
                 Request Inventory
               </Button>
