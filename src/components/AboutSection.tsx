@@ -21,7 +21,7 @@ const AboutSection = () => {
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Globe className="w-8 h-8 text-turquoise" />
+                <Globe className="w-8 h-8 text-primary" />
               </div>
               <CardTitle className="text-primary">Asian Market Focus</CardTitle>
             </CardHeader>
@@ -36,7 +36,7 @@ const AboutSection = () => {
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Handshake className="w-8 h-8 text-turquoise" />
+                <Handshake className="w-8 h-8 text-primary" />
               </div>
               <CardTitle className="text-primary">Trusted Partnerships</CardTitle>
             </CardHeader>
@@ -51,7 +51,7 @@ const AboutSection = () => {
           <Card className="hover:shadow-lg transition-shadow duration-300 border-turquoise/20 hover:border-turquoise/40">
             <CardHeader className="text-center">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <ShoppingCart className="w-8 h-8 text-turquoise" />
+                <ShoppingCart className="w-8 h-8 text-primary" />
               </div>
               <CardTitle className="text-primary">Delivering Value</CardTitle>
             </CardHeader>
