@@ -33,14 +33,19 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <a 
+            href="https://gusto-brands.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
             <img 
               src={gustoLogo} 
               alt="Gusto Brands Logo" 
               className="h-10 w-10"
             />
             <span className="text-xl font-bold">Gusto Brands</span>
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
