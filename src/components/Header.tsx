@@ -9,6 +9,17 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const scrollToTop = () => {
+    if (location.pathname !== '/') {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const scrollToSection = (sectionId: string) => {
     // If we're not on the home page, navigate to home first
     if (location.pathname !== '/') {
@@ -33,10 +44,8 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a 
-            href="https://gusto-brands.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button 
+            onClick={scrollToTop}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
             <img 
@@ -45,7 +54,7 @@ const Header = () => {
               className="h-10 w-10"
             />
             <span className="text-xl font-bold">Gusto Brands</span>
-          </a>
+          </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
