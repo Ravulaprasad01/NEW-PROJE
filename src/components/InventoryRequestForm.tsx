@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Package, ShoppingCart, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase, InventoryRequest, Product } from "@/lib/supabase";
+import { supabase } from '../integrations/supabase/client';
+import { InventoryRequest, Product } from "@/lib/supabase";
 import { emailService } from "@/lib/email-service";
 
 const requestSchema = z.object({
