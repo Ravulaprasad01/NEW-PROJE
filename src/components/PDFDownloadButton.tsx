@@ -17,7 +17,7 @@ interface PDFDownloadButtonProps {
       total_price: number;
     }>;
     total_amount: number;
-    admin_notes?: string;
+    user_notes?: string;
     seller_name: string;
     seller_email: string;
     seller_address_lines: string[];
@@ -31,7 +31,8 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({ invoiceData, clas
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
-      const fileName = `invoice-${invoiceData.invoice_number}.pdf`;
+      const sanitizedInvoiceNumber = invoiceData.invoice_number.replace(/\s/g, '-');
+      const fileName = `invoice-${sanitizedInvoiceNumber}.pdf`;
       // Fetch the PDF from Supabase Storage
       const { data, error } = await supabase.storage
         .from('invoices')

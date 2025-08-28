@@ -24,16 +24,107 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, InventoryRequest } from "@/lib/supabase";
-import { createClient } from '@supabase/supabase-js';
 import { emailService } from "@/lib/email-service";
 import PDFDownloadButton from "./PDFDownloadButton";
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { PDFInvoiceGenerator } from '@/lib/pdf-generator';
+import { getDistributorForItems } from '@/lib/distributors';
+import { createClient } from '@supabase/supabase-js';
+
+const EXCHANGE_RATES: { [key: string]: { [key: string]: number } } = {
+  JPY: {
+    USD: 0.0067, // 1 JPY = 0.0067 USD
+    EUR: 0.0062, // 1 JPY = 0.0062 EUR
+    GBP: 0.0053, // 1 JPY = 0.0053 GBP
+    JPY: 1,
+  },
+  USD: {
+    JPY: 149.25, // 1 USD = 149.25 JPY
+    EUR: 0.93, // 1 USD = 0.93 EUR
+    GBP: 0.79, // 1 USD = 0.79 GBP
+    USD: 1,
+  },
+  EUR: {
+    JPY: 160.48,
+    USD: 1.07,
+    GBP: 0.85,
+    EUR: 1,
+  },
+  GBP: {
+    JPY: 189.51,
+    USD: 1.26,
+    EUR: 1.18,
+    GBP: 1,
+  },
+};
+
+const getExchangeRate = (fromCurrency: string, toCurrency: string): number => {
+  if (fromCurrency === toCurrency) {
+    return 1;
+  }
+  return EXCHANGE_RATES[fromCurrency]?.[toCurrency] || 0;
+};
+
+const countries = [
+  { name: "Japan", currency: "JPY", symbol: "¥" },
+  { name: "United States", currency: "USD", symbol: "$" },
+  { name: "Europe", currency: "EUR", symbol: "€" },
+  { name: "United Kingdom", currency: "GBP", symbol: "£" },
+  { name: "Afghanistan", currency: "AFN", symbol: "؋" },
+  { name: "Armenia", currency: "AMD", symbol: "AMD" },
+  { name: "Azerbaijan", currency: "AZN", symbol: "₼" },
+  { name: "Bahrain", currency: "BHD", symbol: ".د.ب" },
+  { name: "Bangladesh", currency: "BDT", symbol: "৳" },
+  { name: "Bhutan", currency: "BTN", symbol: "Nu." },
+  { name: "Brunei", currency: "BND", symbol: "$" },
+  { name: "Cambodia", currency: "KHR", symbol: "៛" },
+  { name: "China", currency: "CNY", symbol: "¥" },
+  { name: "Cyprus", currency: "EUR", symbol: "€" },
+  { name: "Georgia", currency: "GEL", symbol: "₾" },
+  { name: "India", currency: "INR", symbol: "₹" },
+  { name: "Indonesia", currency: "IDR", symbol: "Rp" },
+  { name: "Iran", currency: "IRR", symbol: "﷼" },
+  { name: "Iraq", currency: "IQD", symbol: "ع.د" },
+  { name: "Israel", currency: "ILS", symbol: "₪" },
+  { name: "Jordan", currency: "JOD", symbol: "د.ا" },
+  { name: "Kazakhstan", currency: "KZT", symbol: "₸" },
+  { name: "Kuwait", currency: "KWD", symbol: "د.ك" },
+  { name: "Kyrgyzstan", currency: "KGS", symbol: "сom" },
+  { name: "Laos", currency: "LAK", symbol: "₭" },
+  { name: "Lebanon", currency: "LBP", symbol: "ل.ل" },
+  { name: "Malaysia", currency: "MYR", symbol: "RM" },
+  { name: "Maldives", currency: "MVR", symbol: ".ރ" },
+  { name: "Mongolia", currency: "MNT", symbol: "₮" },
+  { name: "Myanmar", currency: "MMK", symbol: "Ks" },
+  { name: "Nepal", currency: "NPR", symbol: "₨" },
+  { name: "North Korea", currency: "KPW", symbol: "₩" },
+  { name: "Oman", currency: "OMR", symbol: "ر.ع." },
+  { name: "Pakistan", currency: "PKR", symbol: "₨" },
+  { name: "Palestine", currency: "ILS", symbol: "₪" },
+  { name: "Philippines", currency: "PHP", symbol: "₱" },
+  { name: "Qatar", currency: "QAR", symbol: "ر.ق" },
+  { name: "Russia", currency: "RUB", symbol: "₽" },
+  { name: "Saudi Arabia", currency: "SAR", symbol: "ر.س" },
+  { name: "Singapore", currency: "SGD", symbol: "$" },
+  { name: "South Korea", currency: "KRW", symbol: "₩" },
+  { name: "Sri Lanka", currency: "LKR", symbol: "₨" },
+  { name: "Syria", currency: "SYP", symbol: "£" },
+  { name: "Taiwan", currency: "TWD", symbol: "NT$" },
+  { name: "Tajikistan", currency: "TJS", symbol: "ЅМ" },
+  { name: "Thailand", currency: "THB", symbol: "฿" },
+  { name: "Timor-Leste", currency: "USD", symbol: "$" },
+  { name: "Turkey", currency: "TRY", symbol: "₺" },
+  { name: "Turkmenistan", currency: "TMT", symbol: "m" },
+  { name: "United Arab Emirates", currency: "AED", symbol: "د.إ" },
+  { name: "Uzbekistan", currency: "UZS", symbol: "лв" },
+  { name: "Vietnam", currency: "VND", symbol: "₫" },
+  { name: "Yemen", currency: "YER", symbol: "﷼" },
+];
 
 const invoiceSchema = z.object({
   invoice_number: z.string().min(1, "Invoice number is required"),
-  admin_notes: z.string().optional(),
+  admin_comment: z.string().optional(), // Change to admin_comment
   due_date: z.date({ required_error: 'Due date is required' }),
 });
 
@@ -105,11 +196,25 @@ const AdminDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('inventory_requests')
-        .select('*')
+        .select('*, items, delivery_name, delivery_address_lines') // Select all columns and the new summary
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRequests(data || []);
+      console.log("Fetched requests data:", data);
+      const processedRequests = data.map((req: InventoryRequest) => {
+        let processedItems = req.items;
+        if (typeof req.items === 'string') {
+          try {
+            processedItems = JSON.parse(req.items);
+          } catch (parseError) {
+            console.error(`Error parsing items for request ${req.id}:`, parseError);
+            processedItems = []; // Fallback to empty array on parse error
+          }
+        }
+        // Preserve pricing fields for PDF totals (unit_price/total_price/currency)
+        return { ...req, items: processedItems as Array<{ product_id: string; product_name: string; quantity: number; unit_price?: number; total_price?: number; currency?: string; }> };
+      });
+      setRequests(processedRequests || []);
     } catch (error) {
       console.error('Error fetching requests:', error);
       toast({
@@ -174,7 +279,7 @@ const AdminDashboard = () => {
           total_amount: request.total_amount,
           request_id: request.id,
           status,
-          admin_notes: request.admin_notes,
+          user_notes: request.admin_notes,
         });
         
         if (!emailSuccess) {
@@ -231,7 +336,7 @@ const AdminDashboard = () => {
         .update({ 
           status: 'completed',
           invoice_number: data.invoice_number,
-          admin_notes: data.admin_notes,
+          admin_comment: data.admin_comment, // Use admin_comment for admin's notes
           due_date: data.due_date.toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -253,7 +358,7 @@ const AdminDashboard = () => {
                 ...req, 
                 status: 'completed',
                 invoice_number: data.invoice_number,
-                admin_notes: data.admin_notes,
+                admin_comment: data.admin_comment, // Use admin_comment for local state
                 due_date: data.due_date.toISOString(),
                 updated_at: new Date().toISOString()
               } 
@@ -261,29 +366,40 @@ const AdminDashboard = () => {
         )
       );
 
+      await fetchRequests(); // Re-fetch all requests to ensure UI is up-to-date
+
+      // Resolve distributor (office/delivery) from items
+      const distributor = getDistributorForItems(selectedRequest.items || []);
+      const hkOfficeLines = [
+        "Room B, LG2/F Kai Wong Commercial Building",
+        "222 Queen's Road Central",
+        "Hong Kong",
+      ];
+
       // Generate and upload PDF after DB update
       const pdfBlob = await PDFInvoiceGenerator.generatePDF({
         user_name: selectedRequest.user_name,
         user_email: selectedRequest.user_email,
-        items: selectedRequest.items,
+        items: selectedRequest.items, // Use items
         total_amount: selectedRequest.total_amount,
+        currency: selectedRequest.currency,
+        currencySymbol: countries.find(c => c.currency === selectedRequest.currency)?.symbol || '¥',
         invoice_number: data.invoice_number,
-        admin_notes: data.admin_notes,
+        user_notes: selectedRequest.admin_notes, // Pass original user notes
+        admin_comment: data.admin_comment, // Pass admin's new notes
         due_date: data.due_date,
-        seller_name: 'Gusto Brands Limited',
-        seller_email: 'irene.gustobrands@gmail.com',
-        seller_address_lines: [
-          'Room B, LG2/F Kai Wong Commercial Building',
-          '222 Queen\'s Road Central',
-          'Hong Kong'
-        ],
-        delivery_address_lines: [
-          "1-6-40 Nishiasada",
-          "Hamamatsu City",
-          "Japan 43208045"
-        ],
+        seller_name: distributor?.office.name || 'Gusto Brands Limited',
+        seller_email: distributor?.office.email || 'irene.gustobrands@gmail.com',
+        seller_address_lines: distributor?.office.lines || hkOfficeLines,
+        // Pass the new address fields
+        delivery_name: distributor?.delivery.name || 'Delivery Address',
+        delivery_email: distributor?.delivery.email || undefined,
+        delivery_address_lines: (distributor?.delivery.lines && distributor.delivery.lines.length > 0)
+          ? distributor.delivery.lines
+          : hkOfficeLines,
       });
-      const fileName = `invoice-${data.invoice_number}.pdf`;
+      const sanitizedInvoiceNumber = data.invoice_number.replace(/\s/g, '-');
+      const fileName = `invoice-${sanitizedInvoiceNumber}.pdf`;
       // Use service role key for storage operations to bypass RLS
       const serviceRoleSupabase = createClient(
         import.meta.env.VITE_SUPABASE_URL,
@@ -301,12 +417,15 @@ const AdminDashboard = () => {
       const emailSuccess = await emailService.sendInvoice({
         user_name: selectedRequest.user_name,
         user_email: selectedRequest.user_email,
-        items: selectedRequest.items,
+        items: selectedRequest.items, // Use items for email
         total_amount: selectedRequest.total_amount,
+        currency: selectedRequest.currency,
+        currencySymbol: countries.find(c => c.currency === selectedRequest.currency)?.symbol || '¥',
         request_id: selectedRequest.id,
         status: 'completed',
         invoice_number: data.invoice_number,
-        admin_notes: data.admin_notes,
+        user_notes: selectedRequest.admin_notes,
+        admin_comment: data.admin_comment,
         due_date: data.due_date.toISOString(),
       });
 
@@ -472,26 +591,54 @@ const AdminDashboard = () => {
                         </div>
                         
                         <div className="space-y-1 mb-3">
-                          {request.items.map((item, index) => (
+                          {(request.items || []).map((item, index) => (
                             <div key={index} className="text-sm">
-                              <span className="font-medium text-blue-600">[{item.product_id}]</span> {item.product_name} x {item.quantity} = ¥{item.total_price.toLocaleString()}
+                              <span className="font-medium text-blue-600"></span> {item.product_name} x {item.quantity}
                             </div>
                           ))}
                         </div>
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>Total: ¥{request.total_amount.toLocaleString()}</span>
+                          <span>Currency: {countries.find(c => c.currency === request.currency)?.symbol || ''} {request.currency}</span>
                           <span>Created: {new Date(request.created_at).toLocaleDateString()}</span>
                           {request.invoice_number && (
                             <span>Invoice: #{request.invoice_number}</span>
                           )}
                         </div>
 
-                        {request.admin_notes && (
-                          <div className="mt-2 p-2 bg-muted rounded text-sm">
-                            <strong>Notes:</strong> {request.admin_notes}
-                          </div>
-                        )}
+                        <div className="flex flex-col gap-2 mt-2 text-sm">
+                          {request.user_notes && (
+                            <div className="p-2 bg-muted rounded flex-1">
+                              <strong>User Notes:</strong> {request.user_notes}
+                            </div>
+                          )}
+                          {request.buyer_address_lines && request.buyer_address_lines.length > 0 && (
+                            <div className="p-2 bg-muted rounded flex-1">
+                              <strong>Buyer Address:</strong>
+                              {request.buyer_address_lines.map((line, idx) => (
+                                <p key={idx}>{line}</p>
+                              ))}
+                            </div>
+                          )}
+                          {request.delivery_name && (
+                            <div className="p-2 bg-muted rounded flex-1">
+                              <strong>Delivery Contact:</strong> {request.delivery_name}
+                            </div>
+                          )}
+                          {request.delivery_address_lines && request.delivery_address_lines.length > 0 && (
+                            <div className="p-2 bg-muted rounded flex-1">
+                              <strong>Delivery Address:</strong>
+                              {request.delivery_address_lines.map((line, idx) => (
+                                <p key={idx}>{line}</p>
+                              ))}
+                            </div>
+                          )}
+                          {request.admin_comment && (
+                            <div className="p-2 bg-muted rounded flex-1">
+                              <strong>Admin Comment:</strong> {request.admin_comment}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex flex-col gap-2 ml-4">
@@ -553,10 +700,10 @@ const AdminDashboard = () => {
                                 </div>
                                 
                                 <div className="space-y-2">
-                                  <Label htmlFor="admin_notes">Admin Notes (Optional)</Label>
+                                  <Label htmlFor="admin_comment">Admin Notes (Optional)</Label>
                                   <Textarea
-                                    id="admin_notes"
-                                    {...register("admin_notes")}
+                                    id="admin_comment"
+                                    {...register("admin_comment")}
                                     placeholder="Any additional notes..."
                                     rows={3}
                                   />
@@ -615,16 +762,29 @@ const AdminDashboard = () => {
                               user_name: request.user_name,
                               user_email: request.user_email,
                               invoice_number: request.invoice_number,
-                              items: request.items,
+                              items: request.items, // Use items
                               total_amount: request.total_amount,
-                              admin_notes: request.admin_notes,
-                              seller_name: 'Gusto Brands Limited',
-                              seller_email: 'irene.gustobrands@gmail.com',
-                              seller_address_lines: [
-                                'Room B, LG2/F Kai Wong Commercial Building',
-                                '222 Queen\'s Road Central',
-                                'Hong Kong'
+                              user_notes: request.admin_notes,
+                              admin_comment: request.admin_comment,
+                              currency: request.currency,
+                              currencySymbol: countries.find(c => c.currency === request.currency)?.symbol || '¥',
+                              // Derive distributor details for completed/download as well
+                              seller_name: getDistributorForItems(request.items || [])?.office.name || 'Gusto Brands Limited',
+                              seller_email: getDistributorForItems(request.items || [])?.office.email || 'irene.gustobrands@gmail.com',
+                              seller_address_lines: getDistributorForItems(request.items || [])?.office.lines || [
+                                "Room B, LG2/F Kai Wong Commercial Building",
+                                "222 Queen's Road Central",
+                                "Hong Kong",
                               ],
+                              delivery_name: getDistributorForItems(request.items || [])?.delivery.name || 'Delivery Address',
+                              delivery_email: getDistributorForItems(request.items || [])?.delivery.email || undefined,
+                              delivery_address_lines: (getDistributorForItems(request.items || [])?.delivery.lines && getDistributorForItems(request.items || [])!.delivery.lines.length > 0)
+                                ? getDistributorForItems(request.items || [])!.delivery.lines
+                                : [
+                                  "Room B, LG2/F Kai Wong Commercial Building",
+                                  "222 Queen's Road Central",
+                                  "Hong Kong",
+                                ],
                             }}
                           />
                         )}

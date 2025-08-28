@@ -2,14 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from '../contexts/AuthContext';
 import gustoLogo from "@/assets/gusto-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  // const { user, login } = useAuth(); // Removed useAuth hook
 
   const scrollToTop = () => {
     if (location.pathname !== '/') {
@@ -86,15 +85,8 @@ const Header = () => {
             </button>
             <button
               onClick={() => {
-                console.log("Inventory Request clicked. User:", user);
-                if (user) {
-                  console.log("User is logged in, navigating to /inventory-request");
-                  navigate("/inventory-request");
-                } else {
-                  console.log("User is not logged in, calling login() to open modal.");
-                  login();
-                }
                 setIsMenuOpen(false);
+                navigate("/inventory-request");
               }}
               className="hover:text-turquoise transition-colors"
             >
@@ -149,15 +141,8 @@ const Header = () => {
               </button>
               <button
                 onClick={() => {
-                  console.log("Mobile Inventory Request clicked. User:", user);
-                  if (user) {
-                    console.log("Mobile User is logged in, navigating to /inventory-request");
-                    navigate("/inventory-request");
-                  } else {
-                    console.log("Mobile User is not logged in, calling login() to open modal.");
-                    login();
-                  }
                   setIsMenuOpen(false);
+                  navigate("/inventory-request");
                 }}
                 className="text-left hover:text-turquoise transition-colors"
               >

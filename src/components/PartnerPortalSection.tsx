@@ -204,7 +204,7 @@ const PartnerPortalSection = () => {
                     {products.map((product) => (
                       <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <h4 className="font-semibold">{product.name}</h4>
+                          <h4 className="font-semibold">{product.id} - {product.name}</h4>
                           <p className="text-muted-foreground">{product.currency} {product.price.toLocaleString()}</p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -251,7 +251,7 @@ const PartnerPortalSection = () => {
                               <div className="mt-2">
                                 {order.products.map(({ product, quantity }: any) => (
                                   <p key={product.id} className="text-sm">
-                                    {product.name} x {quantity}
+                                    {product.id} - {product.name} x {quantity}
                                   </p>
                                 ))}
                               </div>

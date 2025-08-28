@@ -17,13 +17,20 @@ export interface InventoryRequestEmailData {
     quantity: number;
     unit_price: number;
     total_price: number;
+    currency: string;
+    currencySymbol: string;
   }>;
   total_amount: number;
+  currency: string;
+  currencySymbol: string;
   request_id: string;
   status: 'pending' | 'approved' | 'rejected' | 'completed';
   invoice_number?: string;
-  admin_notes?: string;
+  user_notes?: string;
+  admin_comment?: string;
   due_date?: string;
+  delivery_name?: string; // New field for delivery contact name
+  delivery_address_lines?: string[]; // New field for delivery address
 }
 
 export class EmailService {
@@ -105,14 +112,18 @@ New inventory request received:
 
 Customer: ${requestData.user_name} (${requestData.user_email})
 Request ID: ${requestData.request_id}
-Total Amount: ¥${requestData.total_amount.toLocaleString()}
+Total Amount: ${requestData.currencySymbol}${requestData.total_amount.toLocaleString()}
+
+${requestData.delivery_name ? `Delivery Contact: ${requestData.delivery_name}` : ''}
+${requestData.delivery_address_lines && requestData.delivery_address_lines.length > 0 ? `Delivery Address:\n${requestData.delivery_address_lines.join('\n')}` : ''}
 
 Items:
 ${requestData.items.map(item => 
-  `- ${item.product_name} x ${item.quantity} = ¥${item.total_price.toLocaleString()}`
+  `- ${item.product_name} x ${item.quantity} = ${item.currencySymbol}${item.total_price.toLocaleString()}`
 ).join('\n')}
 
-${requestData.admin_notes ? `Notes: ${requestData.admin_notes}` : ''}
+${requestData.user_notes ? `User Notes: ${requestData.user_notes}` : ''}
+${requestData.admin_comment ? `Admin Comment: ${requestData.admin_comment}` : ''}
 
 Please review and take action on this request.
     `.trim();
@@ -133,11 +144,14 @@ Thank you for your inventory request. We have received your order and it is curr
 
 Request Details:
 Request ID: ${requestData.request_id}
-Total Amount: ¥${requestData.total_amount.toLocaleString()}
+Total Amount: ${requestData.currencySymbol}${requestData.total_amount.toLocaleString()}
+
+${requestData.delivery_name ? `Delivery Contact: ${requestData.delivery_name}` : ''}
+${requestData.delivery_address_lines && requestData.delivery_address_lines.length > 0 ? `Delivery Address:\n${requestData.delivery_address_lines.join('\n')}` : ''}
 
 Items:
 ${requestData.items.map(item => 
-  `- ${item.product_name} x ${item.quantity} = ¥${item.total_price.toLocaleString()}`
+  `- ${item.product_name} x ${item.quantity} = ${item.currencySymbol}${item.total_price.toLocaleString()}`
 ).join('\n')}
 
 We will review your request and get back to you with approval status and invoice details within 24-48 hours.
@@ -167,7 +181,8 @@ ${requestData.status === 'approved'
   : 'Unfortunately, your request could not be approved at this time. Please contact us for more information.'
 }
 
-${requestData.admin_notes ? `Admin Notes: ${requestData.admin_notes}` : ''}
+${requestData.user_notes ? `User Notes: ${requestData.user_notes}` : ''}
+${requestData.admin_comment ? `Admin Comment: ${requestData.admin_comment}` : ''}
 
 Best regards,
 Gusto Brands Team
@@ -197,14 +212,18 @@ Date: ${new Date().toLocaleDateString()}
 Customer: ${invoiceData.user_name}
 Email: ${invoiceData.user_email}
 
+${invoiceData.delivery_name ? `Delivery Contact: ${invoiceData.delivery_name}` : ''}
+${invoiceData.delivery_address_lines && invoiceData.delivery_address_lines.length > 0 ? `Delivery Address:\n${invoiceData.delivery_address_lines.join('\n')}` : ''}
+
 Items:
 ${invoiceData.items.map(item => 
-  `${item.product_id} - ${item.product_name} x ${item.quantity} = ¥${item.total_price.toLocaleString()}`
+  `${item.product_id} - ${item.product_name} x ${item.quantity} = ${item.currencySymbol}${item.total_price.toLocaleString()}`
 ).join('\n')}
 
-Total Amount: ¥${invoiceData.total_amount.toLocaleString()}
+Total Amount: ${invoiceData.currencySymbol}${invoiceData.total_amount.toLocaleString()}
 
-${invoiceData.admin_notes ? `Notes: ${invoiceData.admin_notes}` : ''}
+${invoiceData.user_notes ? `User Notes: ${invoiceData.user_notes}` : ''}
+${invoiceData.admin_comment ? `Admin Comment: ${invoiceData.admin_comment}` : ''}
 
 Thank you for your business!
 Gusto Brands Team
@@ -241,6 +260,16 @@ Gusto Brands Team
           <p><strong>Email:</strong> ${invoiceData.user_email}</p>
         </div>
         
+        ${invoiceData.delivery_name || (invoiceData.delivery_address_lines && invoiceData.delivery_address_lines.length > 0) ? `
+          <div class="address-details">
+            ${invoiceData.delivery_name ? `<p><strong>Delivery Contact:</strong> ${invoiceData.delivery_name}</p>` : ''}
+            ${invoiceData.delivery_address_lines && invoiceData.delivery_address_lines.length > 0 ? `
+              <p><strong>Delivery Address:</strong></p>
+              ${invoiceData.delivery_address_lines.map(line => `<p>${line}</p>`).join('')}
+            ` : ''}
+          </div>
+        ` : ''}
+        
                   <table>
             <thead>
               <tr>
@@ -257,21 +286,27 @@ Gusto Brands Team
                   <td><strong>${item.product_id}</strong></td>
                   <td>${item.product_name}</td>
                   <td>${item.quantity}</td>
-                  <td>¥${item.unit_price.toLocaleString()}</td>
-                  <td>¥${item.total_price.toLocaleString()}</td>
+                  <td>${item.currencySymbol}${item.unit_price.toLocaleString()}</td>
+                  <td>${item.currencySymbol}${item.total_price.toLocaleString()}</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         
         <div class="total">
-          <p><strong>Total Amount: ¥${invoiceData.total_amount.toLocaleString()}</strong></p>
+          <p><strong>Total Amount: ${invoiceData.currencySymbol}${invoiceData.total_amount.toLocaleString()}</strong></p>
         </div>
         
-        ${invoiceData.admin_notes ? `
+        ${invoiceData.user_notes ? `
           <div class="notes">
-            <h3>Notes:</h3>
-            <p>${invoiceData.admin_notes}</p>
+            <h3>User Notes:</h3>
+            <p>${invoiceData.user_notes}</p>
+          </div>
+        ` : ''}
+        ${invoiceData.admin_comment ? `
+          <div class="notes">
+            <h3>Admin Comment:</h3>
+            <p>${invoiceData.admin_comment}</p>
           </div>
         ` : ''}
         
